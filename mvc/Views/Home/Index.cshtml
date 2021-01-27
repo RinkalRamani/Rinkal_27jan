@@ -1,0 +1,127 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+
+<div class="row">
+    <br />
+    <div class="col-sm-12 col-md-12 col-lg-12">
+        <a href="Home/Project" class="btn btn-primary pull-right" role="button">Add Employee</a>
+        <a href="Home/Search" class="btn btn-primary pull-right" role="button" style="margin-right: 5px;">Search</a>
+    </div>
+    <br />
+    <div class="col-sm-12 col-md-12 col-lg-12"  style="margin-top: 5px;">
+        <table class="table table-bordered">
+            <tr>
+                <th>Select</th>
+                <th>Name</th>
+                <th>Department</th>
+                <th>Age</th>
+                <th>Edit</th>
+                <th>Delete</th>
+
+            </tr>
+            @foreach (var item in Model)
+            {
+                <tr id="@item.Id">
+                    <td><a href="#" id="btnSelect" onclick="Select(@item.Id,'@item.Name')">Select</a></td>
+                    <th>@item.Name</th>
+                    <th>@item.Department</th>
+                    <th>@item.Age</th>
+                    <th><a href="/Home/Project?id=@item.Id">Edit</a></th>
+                    <td><a href="#" id="btnDelete" onclick="Delete(@item.Id)">Delete</a></td>
+                </tr>
+            }
+        </table>
+    </div>
+
+    <div class="form-horizontal" id="divSalary" style="display: none">
+        
+        <div class="form-group">
+            @Html.Label("Name", htmlAttributes: new { @class = "control-label col-md-2" })
+
+            <div class="col-md-10">
+                <input type="text" value="" class="body-content" id="Name">
+                <input type="hidden" value="" class="body-content" id="EmpId">
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.Label("Salary", htmlAttributes: new { @class = "control-label col-md-2" })
+
+            <div class="col-md-10">
+
+                <input class="form-control" type="number" value="" id="Salary">
+                <span class="text-danger errorMessage">
+                    @Html.ValidationMessage("Salary", "", new { @class = "text-danger" })
+                </span>
+
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-2">
+                <input type="button" value="Add" class="btn btn-default" id="btnAdd" />
+
+            </div>
+            <div class="col-md-8">
+                <div class="alert alert-success alert-dismissible fade show">
+                    <strong>Success!</strong> Your message has been sent successfully.
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+@section scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            
+            $("#divSalary").hide();
+
+
+            $('#btnAdd').click(function () {
+                var Amout = $('#Salary').val();
+                if ($('#Salary').val() == null || $('#Salary').val() == '') {
+                    $(".errorMessage").text("Please your enter salary.");
+                }
+                
+                var id = $("#EmpId").val();
+
+                $.ajax({
+                    url: '/Home/AddSalary',
+                    type: "post",
+                    data: { id: id, Salary:Amout},
+                    success: function (result) {
+                        $(".alert").removeClass("fade");
+                    }
+                });
+
+            });
+        });
+        function Delete(id) {
+            $("#divSalary").hide();
+                if (confirm("Are you sure you want do Delete")) {
+
+                    $.ajax({
+                        url: '/Home/DeletePro?id=' + id,
+                        type: "GET",
+                        success: function () {
+                            var trid = "#" + id;
+                            $(trid).hide();
+
+                        },
+
+                    });
+                }
+                return false;
+            }
+
+            function Select(id, Name) {
+                $("#divSalary").show();
+                $("#Name").val(Name);
+                $("#EmpId").val(id);
+                $('#Salary').val("");
+            }
+    </script>
+}

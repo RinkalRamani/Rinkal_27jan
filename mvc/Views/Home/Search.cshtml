@@ -1,0 +1,121 @@
+﻿@model mvc.Models.Project
+@{
+    ViewBag.Title = "Search";
+}
+
+<div class="form-inline">
+    <h4>Search</h4>
+    <hr />
+    <div class="row">
+        <div class="col-12">
+            <span class="text-danger errorMessage">
+                @Html.ValidationMessage("error", "", new { @class = "text-danger" })
+            </span>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                @Html.Label("From Date", htmlAttributes: new { @class = "control-label" })
+                <div>
+                    @Html.TextBox("txtFromDate", "", new { @class = "form-control", @id = "txtFromDate" })
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="form-group">
+                @Html.Label("To Date", htmlAttributes: new { @class = "control-label" })
+                <div>
+                    @Html.TextBox("txtToDate", "", new { @class = "form-control", @id = "txtToDate" })
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" style="margin-top: 10px;">
+        <div class="col-md-4">
+            <div class="form-group">
+                @Html.Label("Employee", htmlAttributes: new { @class = "control-label" })
+                <div>
+                    @Html.DropDownList("Employee", ViewBag.ddlEmployee as SelectList, new { @class = "form-control", @id = "Employee", Style = "width: 200px;" })
+                </div>
+
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="button" value="Search" class="btn btn-primary pull-right" id="btnSearch" style=" margin-top: 15px;" />
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row" style="margin-top: 10px;">
+    <div class="col-sm-12 col-md-12 col-lg-12">
+        <table class="table table-bordered" id="tblSearch">
+            <tr>
+                <th>Name</th>
+                <th>Department</th>
+                <th>DOB</th>
+                <th>Salary</th>
+
+            </tr>
+        </table>
+    </div>
+</div>
+
+
+@section scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $('#txtFromDate').datepicker({
+                orientation: "bottom"
+            });
+            $('#txtToDate').datepicker({
+                orientation: "bottom"
+            });
+        });
+        $("#btnSearch").click(function () {
+            
+            if ($('#txtFromDate').val() == null || $('#txtFromDate').val() == '') {
+                $(".errorMessage").text("Please your enter From Date.");
+            }
+            else if ($('#txtToDate').val() == null || $('#txtToDate').val() == '') {
+                $(".errorMessage").text("Please your enter To Date.");
+            }
+            else if (new Date($('#txtFromDate').val()) >= new Date($('#txtToDate').val())) {
+                $(".errorMessage").text("From date is less the or equal to To date");
+            }
+            else {
+                $(".errorMessage").text("");
+                $.ajax({
+                    type: "POST",
+                    url: "/Home/EmpSearch",
+                    data: { sFromDate: $('#txtFromDate').val(), sToDate: $('#txtToDate').val(), sEmployeeName: $('#Employee').val() },
+                    cache: false,
+
+                    success: function (data) {
+                        $('#tblSearch').DataTable({
+
+                            "data": data.data,
+                            "columns": [
+                                { "title": "name", "data": "Name", "width": "230px" },
+                                { "title": "Department", "data": "Department", "width": "260px" },
+                                { "title": "DOB", "data": "DOB", "width": "230px" },
+                                { "title": "Salary", "data": "Salary", "width": "230px" }
+                            ]
+                        });
+                    }
+                   
+                });
+                
+            }
+        });
+
+    </script>
+
+}
